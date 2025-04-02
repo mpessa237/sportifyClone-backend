@@ -10,7 +10,8 @@ public interface UserService {
     UserRespDTO addUser(UserReqDTO userReqDTO);
     List<User> getAllUser();
     UserRespDTO getUserById(Integer userId);
-    User getUserByUsername(String username);
+    UserRespDTO getUserByUsername(String username);
+    UserRespDTO getUserByEmail(String email);
     User updateUser(User user,Integer userId);
     void deleteUser(Integer userId);
 }

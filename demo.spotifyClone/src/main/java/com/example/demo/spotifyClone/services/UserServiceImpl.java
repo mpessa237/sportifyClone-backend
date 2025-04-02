@@ -3,6 +3,7 @@ package com.example.demo.spotifyClone.services;
 import com.example.demo.spotifyClone.dto.user.UserReqDTO;
 import com.example.demo.spotifyClone.dto.user.UserRespDTO;
 import com.example.demo.spotifyClone.entity.User;
+import com.example.demo.spotifyClone.exception.BusinessException;
 import com.example.demo.spotifyClone.exception.ResourceNotFoundException;
 import com.example.demo.spotifyClone.mapper.UserMapper;
 import com.example.demo.spotifyClone.repository.UserRepo;
@@ -24,11 +25,21 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserRespDTO addUser(UserReqDTO userReqDTO) {
-
-
-        User user = this.userMapper.toEntity(userReqDTO);
-        User addUser = this.userRepo.save(user);
-        return this.userMapper.toDto(addUser);
+        // Validation de l'email
+        if (!EmailValidation.isValidEmail(userReqDTO.getEmail())) {
+            throw new BusinessException("Format d'email invalide");
+        }
+        // Vérification unicité
+        if (userRepo.existsByEmail(userReqDTO.getEmail())) {
+            throw new BusinessException("Email déjà utilisé");
+        }
+        try {
+            User user = this.userMapper.toEntity(userReqDTO);
+            User addUser = this.userRepo.save(user);
+            return this.userMapper.toDto(addUser);
+        } catch (Exception e) {
+            throw new BusinessException("Erreur lors de la création de l'utilisateur");
+        }
     }
 
     @Override
@@ -44,11 +55,17 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        Optional<User> user = this.userRepo.findUserByUsername(username);
-        if (user.isEmpty())
-            throw new ResourceNotFoundException("user not found!!");
-        return user.get();
+    public UserRespDTO getUserByUsername(String username) {
+        User user = this.userRepo.findUserByUsername(username)
+                .orElseThrow(()-> new ResourceNotFoundException("user not found!!"));
+        return this.userMapper.toDto(user);
+    }
+
+    @Override
+    public UserRespDTO getUserByEmail(String email) {
+        User user = this.userRepo.findUserByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("user not found!!"));
+        return this.userMapper.toDto(user);
     }
 
     @Override

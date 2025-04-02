@@ -35,9 +35,13 @@ public class UserController {
                 .ok(this.userService.getUserById(userId));
     }
     @GetMapping(path = "user/get-user-by-username/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username){
+    public ResponseEntity<UserRespDTO> getUserByUsername(@PathVariable String username){
         return ResponseEntity
                 .ok(this.userService.getUserByUsername(username));
+    }
+    @GetMapping(path = "user/get-user-by-email/{email}")
+    public ResponseEntity<UserRespDTO> getUserByEmail(@PathVariable String email){
+        return ResponseEntity.ok(this.userService.getUserByEmail(email));
     }
     @PutMapping(path = "user/update-User/{userId}")
     public ResponseEntity<User> updateUserById(@Valid @RequestBody User user, @PathVariable Integer userId){
